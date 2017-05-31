@@ -1,7 +1,6 @@
 var path = require('path');
-var webpack = require('webpack'),
-    ExtractTextPlugin = require("extract-text-webpack-plugin");
- var glob = require("glob");
+var webpack = require('webpack')
+var glob = require("glob");
 
 
 module.exports = {
@@ -20,10 +19,6 @@ module.exports = {
         new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.HotModuleReplacementPlugin(),
-        new webpack.ProvidePlugin({
-            $: "jquery",
-            jQuery: "jquery"
-        })
     ],
 
     module: {

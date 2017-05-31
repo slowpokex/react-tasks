@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
-import Main from './forms/Main'
+import Header from './components/Header'
+import ConvertForm from './components/ConvertForm'
 
 class App extends Component {
-    render() {
-        return (
-            <div>
-                <h1>Hello from React</h1>
-                <Main />
-            </div>
-        );
-    }
+	render() {
+		return (
+			<div>
+				<Header />
+				<ConvertForm />
+			</div>
+		);
+	}
 }
 
 export default App;

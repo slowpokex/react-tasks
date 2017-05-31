@@ -19,10 +19,6 @@ app.get("/", function(req, res) {
     res.sendFile(__dirname + '/index.html')
 });
 
-app.get("/api/", function(req, res) {
-    res.end("hello to API");
-});
-
 app.listen(port, function(error) {
     if (error) {
         console.error(error);
