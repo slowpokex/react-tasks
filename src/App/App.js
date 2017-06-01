@@ -4,15 +4,15 @@ import ConvertForm from './components/ConvertForm';
 import HistoryList from './components/HistoryList';
 
 class App extends Component {
-	render() {
-		return (
-			<div>
-				<Header />
-				<ConvertForm />
-				<HistoryList />
-			</div>
-		);
-	}
+		render() {
+				return (
+						<div>
+								<Header />
+								<ConvertForm />
+								<HistoryList />
+						</div>
+				);
+		}
 }
 
 export default App;
