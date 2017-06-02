@@ -1,11 +1,11 @@
 var path = require('path');
 var webpack = require('webpack')
-var glob = require("glob");
+var glob = require('glob');
 
 
 module.exports = {
 
-  devtool : "source-map",
+  devtool : 'source-map',
     
   entry : glob.sync('./src/*.js'),
 
@@ -26,10 +26,10 @@ module.exports = {
     rules: [
         {
           test: /\.js$/,
-          enforce: "pre",
-          loader: "eslint-loader",
+          enforce: 'pre',
+          loader: 'eslint-loader',
           include: [
-            path.resolve(__dirname, "src"),
+            path.resolve(__dirname, 'src'),
           ]
         },
         {
@@ -40,14 +40,14 @@ module.exports = {
         {
           test: /\.js$/,
           include: [
-            path.resolve(__dirname, "src")
+            path.resolve(__dirname, 'src')
           ],
 
           use: [
               {
                 loader: 'babel-loader',
                 options: {
-                  presets: ["es2015", "stage-0", "react"],
+                  presets: ['es2015', 'stage-0', 'react'],
                   plugins: [ require('babel-plugin-transform-runtime') ]
               }
             }

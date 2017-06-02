@@ -31,6 +31,24 @@ function mapStateToProps(state, dispatch, setState) {
   }
 }
 
+function mapDispatchToProps(dispatch) {
+    return {
+      changeReverse: (value) => dispatch(CurrentAction.getSwitchAction(value)),
+      changeType: (value) => dispatch(CurrentAction.getTypeAction(value)),
+      submitToRecent: (obj) => {
+        dispatch(CurrentAction.getUpdateCurrent(obj));
+        dispatch(CurrentAction.addToRecent(obj));
+        dispatch(CurrentAction.getDefault());
+      },
+      updateValues: (first, second) => {
+        dispatch(CurrentAction.getFirstValue(first));
+        dispatch(CurrentAction.getSecondValue(second));
+      },
+      updateFirstProportion: (value) => dispatch(CurrentAction.getFirstProportion(value)),
+      updateSecondProportion: (value) => dispatch(CurrentAction.getSecondProportion(value))
+    }
+}
+
 class ConvertForm extends Component {
     
   constructor(props) {
@@ -63,7 +81,7 @@ class ConvertForm extends Component {
     
   handleFirstInput(e) {
     const firstValue = +e.target.value;
-    const secondValue = this.calculate(+e.target.value, this.state.firstProportion, this.state.secondProportion);
+    const secondValue = this.calculate(firstValue, this.state.firstProportion, this.state.secondProportion);
         
     this.setState({
       ...this.state,
@@ -71,8 +89,7 @@ class ConvertForm extends Component {
       second: secondValue
     });
 
-    this.props.dispatch({ type: 'UPDATE_FIRST_VALUE', payload: firstValue })
-    this.props.dispatch({ type: 'UPDATE_SECOND_VALUE', payload: secondValue })
+    this.props.updateValues(firstValue, secondValue);
   }
 
   handleReverse(e) {
@@ -82,53 +99,52 @@ class ConvertForm extends Component {
       ...this.state,
       onReverse: newValue
     });
-    this.props.dispatch(CurrentAction.getSwitchAction(newValue));
+    this.props.changeReverse(newValue);
   }
 
   handleSecondInput(e) {
     const firstValue = +e.target.value;
-    const secondValue = this.calculate(+e.target.value, this.state.firstProportion, this.state.secondProportion);
+    const secondValue = this.calculate(+e.target.value, this.state.secondProportion, this.state.firstProportion);
 
     this.setState({
       ...this.state,
       second: firstValue,
       first: secondValue
     });
-    this.props.dispatch({ type: 'UPDATE_SECOND_VALUE', payload: firstValue });
-    this.props.dispatch({ type: 'UPDATE_FIRST_VALUE', payload: secondValue });
+
+    this.props.updateValues(secondValue, firstValue);
   }
 
   handleConvertClick() {
     this.clearForm();
-    this.props.dispatch({ type: 'UPDATE_CURRENT', payload: this.state });
-    this.props.dispatch({ type: 'ADD_TO_RECENT', payload: this.state });
-    this.props.dispatch({ type: 'DEFAULT_CURRENT' });
+    this.props.submitToRecent(this.state);
   }
 
   handleTypeChange(e) {
-      this.setState({
-          ...this.state,
-          type: +e.target.value
-      });
-      this.props.dispatch({ type: 'UPDATE_TYPE', payload: this.state.type })
+    this.setState({
+       ...this.state,
+       type: +e.target.value
+    });
+    this.props.changeType(this.state.type);
   }
 
-  changeSelector(e) {				
+  changeSelector(e) {
+      const value = +e.target.value;
       switch(e.target.id) {
         case PositionOfSelectors.FIRST: { 
             this.setState({
               ...this.state,
-              firstProportion: +e.target.value
+              firstProportion: value
             });
-            this.props.dispatch({ type: 'UPDATE_FIRST_PROPORTION', payload: +e.target.value })
+            this.props.updateFirstProportion(value);
           } break;
 
         case PositionOfSelectors.SECOND: { 
             this.setState({
               ...this.state,
-              secondProportion: +e.target.value
+              secondProportion: value
             });
-            this.props.dispatch({ type: 'UPDATE_SECOND_PROPORTION', payload: +e.target.value })
+            this.props.updateSecondProportion(value);
           } break;
       }
   }
@@ -164,7 +180,7 @@ class ConvertForm extends Component {
         <option value={ Multiplier.MILE }>Mile</option>
         <option value={ Multiplier.NONE }>Meter</option>
         <option value={ Multiplier.CENTI }>Centimeter</option>
-        <option value={ Multiplier.MILLI }>Centimeter</option>
+        <option value={ Multiplier.MILLI }>Millimeter</option>
       </select>
     );
   }
@@ -235,4 +251,4 @@ class ConvertForm extends Component {
   }
 }
 
-export default connect(mapStateToProps)(ConvertForm);
+export default connect(mapStateToProps, mapDispatchToProps)(ConvertForm);
