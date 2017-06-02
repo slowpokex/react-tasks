@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux'
+import { connect } from 'react-redux';
+import Element from './Element';
 
 function mapStateToProps(state, dispatch) {
   return {
-    current: state,
-	dispatch
+    previous: state.previous,
+		dispatch
   }
 }
 
@@ -20,13 +21,14 @@ class HistoryList extends Component {
 	}
 
 	render() {
+		const clearButton = <button onClick = { this.clearHistory }>Clear history</button>;
 		return (
 			<div>
-				<h3>Recent converts:</h3>
+				<h3>{this.props.previous.length ? 'Recent converts:' : null }</h3>
 				<ul>
-					{ this.props.current.previous.map( (item, i) => <li key={i}> { JSON.stringify(item) } </li> ) }
+					{ this.props.previous.map( (item, i) => <Element li key={i} convert={item}/> ) }
 				</ul>
-				<button onClick = { this.clearHistory }>Clear history</button>
+				{ this.props.previous.length ? clearButton : null }
 			</div>
 		);
 	}

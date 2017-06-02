@@ -12,6 +12,13 @@ export const PositionOfSelectors = {
     SECOND: 'second'
 }
 
+export const Multiplier = {
+  KILO: 1000,
+  NONE: 1,
+  CENTI: 0.01,
+  MILLI: 0.001
+}
+
 function mapStateToProps(state, dispatch, setState) {
   return {
     current: state,
@@ -30,17 +37,39 @@ class ConvertForm extends Component {
         this.handleConvertClick = this.handleConvertClick.bind(this);
         this.handleTypeChange = this.handleTypeChange.bind(this);
         this.changeSelector = this.changeSelector.bind(this);
+        this.changeFirstInput = this.changeFirstInput.bind(this);
+        this.changeSecondInput = this.changeSecondInput.bind(this);
 
         let { current } = this.props.current;
         this.state = current;
     }
-    
-    handleFirstInput(e) {
+
+    changeFirstInput(e) {
         this.setState({
             ...this.state,
-            first: +e.target.value
+            first: e.target.value,
         });
-        this.props.dispatch({ type: 'UPDATE_FIRST_VALUE', payload: +e.target.value })
+    }
+
+    changeSecondInput(e) {
+      this.setState({
+            ...this.state,
+            second: e.target.value,
+        });
+    }
+    
+    handleFirstInput(e) {
+        const firstValue = +e.target.value;
+        const secondValue = this.calculate(+e.target.value, this.state.firstProportion, this.state.secondProportion);
+        
+        this.setState({
+            ...this.state,
+            first: firstValue,
+            second: secondValue
+        });
+
+        this.props.dispatch({ type: 'UPDATE_FIRST_VALUE', payload: firstValue })
+        this.props.dispatch({ type: 'UPDATE_SECOND_VALUE', payload: secondValue })
     }
 
     handleReverse(e) {
@@ -49,7 +78,7 @@ class ConvertForm extends Component {
             ...this.state,
             onReverse: !this.state.onReverse
         });
-        this.props.dispatch({ type: 'SWITCH_REVERSE', payload: this.state.onReverse })
+        this.props.dispatch({ type: 'SWITCH_REVERSE', payload: !this.state.onReverse })
     }
 
     handleSecondInput(e) {
@@ -99,9 +128,9 @@ class ConvertForm extends Component {
     renderLengthSelector(position) {
         return (
             <select name={position} onChange={ this.changeSelector }>
-                <option value={1000}>Kilometer</option>
-                <option value={1}>Meter</option>
-                <option value={0.001}>Centimeter</option>
+                <option value={ Multiplier.KILO }>Kilometer</option>
+                <option value={ Multiplier.NONE }>Meter</option>
+                <option value={ Multiplier.CENTI }>Centimeter</option>
             </select>
         );
     }
@@ -109,14 +138,16 @@ class ConvertForm extends Component {
     renderWeightSelector(position) {
         return (
             <select name={position} onChange={ this.changeSelector }>
-                <option value={1000}>Kilogram</option>
-                <option value={1}>Gram</option>
-                <option value={0.001}>Milligram</option>
+                <option value={ Multiplier.KILO }>Kilogram</option>
+                <option value={ Multiplier.NONE }>Gram</option>
+                <option value={ Multiplier.MILLI }>Milligram</option>
             </select>
         );
     }
 
-
+    calculate(first, firstProportion, secondProportion) {
+        return (first * firstProportion) / secondProportion
+    }
     
     render() {
       
@@ -130,10 +161,10 @@ class ConvertForm extends Component {
         return (
             <div>
                 <div>
-                    <input type='text' onBlur={ this.handleFirstInput } value={ this.props.current.first }/>
+                    <input type='text' onChange={ this.changeFirstInput } onBlur={ this.handleFirstInput } value={ this.state.first } disabled={ this.state.onReverse }/>
                     <button onClick={ this.handleReverse }>{ !this.state.onReverse ? '→' : '←' }</button>
-                    <input type='text' onBlur={ this.handleSecondInput } value={ this.props.current.second }/>
-                    <button onClick={ this.handleConvertClick }>{ 'Convert' }</button>
+                    <input type='text' onChange={ this.changeSecondInput } onBlur={ this.handleSecondInput } value={ this.state.second } disabled={ !this.state.onReverse }/>
+                    <button onClick={ this.handleConvertClick }>{ 'Add to recent' }</button>
                 </div>
                 <div>
                     <div>

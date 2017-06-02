@@ -4,8 +4,9 @@ class Element extends Component {
   render() {
     return (
       <div>
-        <span>Some text</span>
+        <span>{ JSON.stringify(this.props.convert) }</span>
         <button>Load</button>
+        <button>Delete</button>
       </div>
     );
   }
