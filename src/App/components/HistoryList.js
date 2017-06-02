@@ -17,7 +17,7 @@ class HistoryList extends Component {
 	}
 
 	clearHistory() {
-		this.props.dispatch({ type: 'CLEAR_RECENT' });
+		this.props.dispatch({ type: 'CLEAR_ALL_RECENT' });
 	}
 
 	render() {
