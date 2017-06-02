@@ -9,20 +9,20 @@ var port = 3000;
 var compiler = webpack(config);
 
 app.use(webpackDevMiddleware(compiler, { 
-	noInfo: true, 
-	publicPath: config.output.publicPath 
+  noInfo: true, 
+  publicPath: config.output.publicPath 
 }));
 
 app.use(webpackHotMiddleware(compiler));
 
 app.get("/", function(req, res) {
-	res.sendFile(__dirname + '/index.html')
+  res.sendFile(__dirname + '/index.html')
 });
 
 app.listen(port, function(error) {
-	if (error) {
-		console.error(error);
-	} else {
-		console.info("Listening on port %s. Open up http://localhost:%s/ in your browser.", port, port)
-	}
+  if (error) {
+    console.error(error);
+  } else {
+    console.info("Listening on port %s. Open up http://localhost:%s/ in your browser.", port, port)
+  }
 });
