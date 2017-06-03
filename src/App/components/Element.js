@@ -1,25 +1,25 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { PreviousAction, CurrentAction } from '../actions'
 
-function mapStateToProps(dispatch) {
+function mapDispatchToProps(dispatch) {
   return {
-    dispatch
+    deleteCurrent: (obj) => dispatch(PreviousAction.deleteCurrent(obj)),
+    loadCurrent: (obj) => dispatch(CurrentAction.getUpdateCurrent(obj))
   }
 } 
 
 class Element extends Component {	
   static propTypes = {
     convert : PropTypes.shape({
-      date: PropTypes.date,
-      first: PropTypes.number,
+      date: PropTypes.object,
       onReverse: PropTypes.bool,
-      second: PropTypes.number,
       type: PropTypes.number,
       firstProportion: PropTypes.number,
       secondProportion: PropTypes.number 
     })
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -28,22 +28,26 @@ class Element extends Component {
   }
 
   loadItem() {
-
+    this.props.loadCurrent(this.props.convert);
   }
 
   deleteItem() {
-    this.props.dispatch({type: 'CLEAR_CURRENT_RECENT', payload: this.props.convert });
+    this.props.deleteCurrent(this.props.convert);
   }
   
   render() {
+    const item = this.props.convert;
     return (
       <div>
-        <span>{ JSON.stringify(this.props.convert) }</span>
-        <button onClick={ this.loadItem }>Load</button>
-        <button onClick={ this.deleteItem }>X</button>
+        <strong> { item.date.toLocaleTimeString() } </strong>
+        <span> { item.first } </span>
+        <strong> { !item.onReverse ? '→' : '←'  } </strong>
+        <span> { item.second } </span>
+        <button onClick={ this.loadItem }> Load </button>
+        <button onClick={ this.deleteItem }> X </button>
       </div>
     );
   }
 }
 
-export default connect(mapStateToProps)(Element);
+export default connect(null, mapDispatchToProps)(Element);

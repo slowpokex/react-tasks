@@ -8,7 +8,7 @@ export class CurrentAction {
   }
 
   static getUpdateCurrent(obj) {
-    return { type: 'UPDATE_CURRENT', obj }
+    return { type: 'UPDATE_CURRENT', payload: obj }
   }
 
   static addToRecent(obj) {
@@ -32,10 +32,12 @@ export class CurrentAction {
   }
 
   static getSecondProportion(value) {
-    return { type: 'UPDATE_FIRST_PROPORTION', payload: value }
+    return { type: 'UPDATE_SECOND_PROPORTION', payload: value }
   }
 }
 
-export class PreviouAction {
-
+export class PreviousAction {
+  static deleteCurrent(obj) {
+    return {type: 'CLEAR_CURRENT_RECENT', payload: obj }
+  }
 }

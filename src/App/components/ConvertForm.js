@@ -1,18 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { initCurrent } from '../reducers';
 import { CurrentAction } from '../actions'
 
 export const ConverterType = {
   WEIGHT: 1,
   LENGTH: 2,
   VOLUME: 3
-}
+};
 
 export const PositionOfSelectors = {
   FIRST: 'first',
   SECOND: 'second'
-}
+};
 
 export const Multiplier = {
   MILE: 1823,
@@ -21,13 +20,11 @@ export const Multiplier = {
   CENTI: 0.01,
   MILLI: 0.001,
   OUNCE: 29.8
-}
+};
 
-function mapStateToProps(state, dispatch, setState) {
+function mapStateToProps(state) {
   return {
-    current: state.current,
-    dispatch,
-    set: setState
+    current: state.current
   }
 }
 
@@ -40,6 +37,8 @@ function mapDispatchToProps(dispatch) {
         dispatch(CurrentAction.addToRecent(obj));
         dispatch(CurrentAction.getDefault());
       },
+      updateFirstValue: (value) => dispatch(CurrentAction.getFirstValue(value)),
+      updateSecondValue: (value) => dispatch(CurrentAction.getSecondValue(value)),
       updateValues: (first, second) => {
         dispatch(CurrentAction.getFirstValue(first));
         dispatch(CurrentAction.getSecondValue(second));
@@ -50,7 +49,6 @@ function mapDispatchToProps(dispatch) {
 }
 
 class ConvertForm extends Component {
-    
   constructor(props) {
     super(props);
     this.handleFirstInput = this.handleFirstInput.bind(this);
@@ -59,114 +57,96 @@ class ConvertForm extends Component {
     this.handleConvertClick = this.handleConvertClick.bind(this);
     this.handleTypeChange = this.handleTypeChange.bind(this);
     this.changeSelector = this.changeSelector.bind(this);
-    this.changeFirstInput = this.changeFirstInput.bind(this);
-    this.changeSecondInput = this.changeSecondInput.bind(this);
-
-    this.state = this.props.current;
+    this.refreshValues = this.refreshValues.bind(this);
   }
 
-  changeFirstInput(e) {
-    this.setState({
-      ...this.state,
-      first: e.target.value,
-    });
+  componentWillReceiveProps(nextProps) {
+    // Setting current properties
+    const current = nextProps.current;
+
+    // Setting selectors
+    const type = current.type;
+    this.mainSelector.selectedIndex = ConvertForm.returnConverterTypeIndex(type);
+
+    //Get depends selectors
+    ConvertForm.setDependsSelectorsIndex(type, current.firstProportion, current.secondProportion);
   }
 
-  changeSecondInput(e) {
-    this.setState({
-      ...this.state,
-      second: e.target.value,
-    });
+  static setDependsSelectorsIndex(type, firstProportion, secondProportion){
+    const firstSelector = document.querySelector(`[name=${ PositionOfSelectors.FIRST }]`);
+    const secondSelector = document.querySelector(`[name=${ PositionOfSelectors.SECOND }]`);
+
+    switch (type) {
+      case ConverterType.WEIGHT: {
+        firstSelector.selectedIndex = ConvertForm.returnWeightSelectorIndex(firstProportion);
+        secondSelector.selectedIndex = ConvertForm.returnWeightSelectorIndex(secondProportion);
+      } break;
+      case ConverterType.LENGTH: {
+        firstSelector.selectedIndex = ConvertForm.returnLengthSelectorIndex(firstProportion);
+        secondSelector.selectedIndex = ConvertForm.returnLengthSelectorIndex(secondProportion);
+      } break;
+    }
   }
-    
+
   handleFirstInput(e) {
-    const firstValue = +e.target.value;
-    const secondValue = this.calculate(firstValue, this.state.firstProportion, this.state.secondProportion);
-        
-    this.setState({
-      ...this.state,
-      first: firstValue,
-      second: secondValue
-    });
-
-    this.props.updateValues(firstValue, secondValue);
+    this.props.updateFirstValue(e.target.value);
   }
 
-  handleReverse(e) {
-    const newValue = !this.state.onReverse;
-    e.preventDefault();
-    this.setState({
-      ...this.state,
-      onReverse: newValue
-    });
-    this.props.changeReverse(newValue);
+  handleReverse() {
+    this.props.changeReverse(!this.props.current.onReverse);
   }
 
   handleSecondInput(e) {
-    const firstValue = +e.target.value;
-    const secondValue = this.calculate(+e.target.value, this.state.secondProportion, this.state.firstProportion);
+    this.props.updateSecondValue(e.target.value);
+  }
 
-    this.setState({
-      ...this.state,
-      second: firstValue,
-      first: secondValue
-    });
+  refreshValues() {
+    const current = this.props.current;
+    const firstValue = !current.onReverse ? current.first : current.second;
+    const firstProp = !current.onReverse ? current.firstProportion : current.secondProportion;
+    const secondProp = current.onReverse ? current.firstProportion : current.secondProportion;
+    const secondValue = ConvertForm.calculate(firstValue, firstProp, secondProp);
 
-    this.props.updateValues(secondValue, firstValue);
+    if (!current.onReverse) {
+      this.props.updateValues(firstValue, secondValue)
+    } else {
+      this.props.updateValues(secondValue, firstValue);
+    }
   }
 
   handleConvertClick() {
-    this.clearForm();
-    this.props.submitToRecent(this.state);
+    ConvertForm.defaultSelectors();
+    this.props.submitToRecent(this.props.current);
   }
 
   handleTypeChange(e) {
-    this.setState({
-       ...this.state,
-       type: +e.target.value
-    });
-    this.props.changeType(this.state.type);
+    this.props.changeType(+e.target.value);
   }
 
   changeSelector(e) {
       const value = +e.target.value;
-      switch(e.target.id) {
-        case PositionOfSelectors.FIRST: { 
-            this.setState({
-              ...this.state,
-              firstProportion: value
-            });
+      switch(e.target.name) {
+        case PositionOfSelectors.FIRST: {
             this.props.updateFirstProportion(value);
           } break;
 
-        case PositionOfSelectors.SECOND: { 
-            this.setState({
-              ...this.state,
-              secondProportion: value
-            });
+        case PositionOfSelectors.SECOND: {
             this.props.updateSecondProportion(value);
           } break;
       }
   }
 
-  defaultSelectors() {
+  static defaultSelectors() {
     const selectors = document.querySelectorAll('select');
     selectors.forEach((select) => {
       select.selectedIndex = 0;
     })
   }
 
-  clearForm() {
-    this.defaultSelectors();
-    this.setState({
-      ...initCurrent			
-    });
-  }
-
-  returnLengthSelectorIndex(value) {
+  static returnLengthSelectorIndex(value) {
     switch(value) {
-      case Multiplier.MILE: return 0;
-      case Multiplier.KILO: return 1;
+      case Multiplier.KILO: return 0;
+      case Multiplier.MILE: return 1;
       case Multiplier.NONE: return 2;
       case Multiplier.CENTI: return 3;
       case Multiplier.MILLI: return 4;
@@ -175,7 +155,7 @@ class ConvertForm extends Component {
 
   renderLengthSelector(position) {
     return (
-      <select id={position} onChange={ this.changeSelector }>				
+      <select name={ position } onChange={ this.changeSelector } onBlur={ this.refreshValues }>
         <option value={ Multiplier.KILO }>Kilometer</option>
         <option value={ Multiplier.MILE }>Mile</option>
         <option value={ Multiplier.NONE }>Meter</option>
@@ -185,7 +165,7 @@ class ConvertForm extends Component {
     );
   }
 
-  returnWeightSelectorIndex(value) {
+  static returnWeightSelectorIndex(value) {
     switch(value) {
       case Multiplier.KILO: return 0;
       case Multiplier.NONE: return 1;
@@ -196,7 +176,7 @@ class ConvertForm extends Component {
 
   renderWeightSelector(position) {
     return (
-      <select id={position} onChange={ this.changeSelector }>
+      <select name={ position } onChange={ this.changeSelector } onBlur={ this.refreshValues }>
         <option value={ Multiplier.KILO }>Kilogram</option>
         <option value={ Multiplier.NONE }>Gram</option>
         <option value={ Multiplier.MILLI }>Milligram</option>
@@ -205,18 +185,20 @@ class ConvertForm extends Component {
     );
   }
 
-  calculate(first, firstProportion, secondProportion) {
+  static calculate(first, firstProportion, secondProportion) {
     return (first * firstProportion) / secondProportion
   }
 
-  returnConverterTypeIndex(value) {
+  static returnConverterTypeIndex(value) {
     switch(value) {
       case ConverterType.WEIGHT: return 0;
       case ConverterType.LENGTH: return 1;
     }
   }
     
-  render() {		
+  render() {
+    const current = this.props.current;
+
     const elements = ((i, position) => {
       switch(i) {
         case ConverterType.WEIGHT: return this.renderWeightSelector(position);
@@ -227,22 +209,35 @@ class ConvertForm extends Component {
     return (
       <div>
         <div>
-          <input type='text' onChange={ this.changeFirstInput } onBlur={ this.handleFirstInput } value={ this.state.first } disabled={ this.state.onReverse }/>
-          <button onClick={ this.handleReverse }>{ !this.state.onReverse ? '→' : '←' }</button>
-          <input type='text' onChange={ this.changeSecondInput } onBlur={ this.handleSecondInput } value={ this.state.second } disabled={ !this.state.onReverse }/>
-          <button onClick={ this.handleConvertClick }>{ 'Add to recent' }</button>
+          <input type='text'
+                 onChange={ this.handleFirstInput }
+                 onBlur={ this.refreshValues }
+                 value={ current.first }
+                 disabled={ current.onReverse }/>
+          <button
+            onClick={ this.handleReverse }>
+            { !current.onReverse ? '→' : '←' }
+          </button>
+          <input type='text'
+                 onChange={ this.handleSecondInput }
+                 onBlur={ this.refreshValues }
+                 value={ current.second }
+                 disabled={ !current.onReverse }/>
+          <button onClick={ this.handleConvertClick }>
+            { 'Add to recent' }
+          </button>
         </div>
         <div>
           <div>
-            <select onChange = { this.handleTypeChange }>
+            <select ref={(select) => this.mainSelector = select} onChange = { this.handleTypeChange } onBlur={ this.refreshValues }>
               <option value = { ConverterType.WEIGHT }>Weight</option>
               <option value = { ConverterType.LENGTH }>Length</option>
             </select>
             <div>
-              { elements(this.state.type, PositionOfSelectors.FIRST) }
+              { elements(current.type, PositionOfSelectors.FIRST) }
             </div>
             <div>
-              { elements(this.state.type, PositionOfSelectors.SECOND) }
+              { elements(current.type, PositionOfSelectors.SECOND) }
             </div>
           </div>
         </div>
