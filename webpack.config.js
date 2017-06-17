@@ -1,31 +1,43 @@
 var path = require('path');
-var webpack = require('webpack')
+var webpack = require('webpack');
 var glob = require('glob');
-
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
-
-  devtool : 'source-map',
+  devtool : 'eval-source-map',
     
-  entry : glob.sync('./src/*.js'),
+  entry : glob.sync('./src/**/*.{js,jsx}'),
 
   output: {
-    path: path.join(__dirname, 'dist'),
+    path: path.join(__dirname, 'static'),
     filename: 'bundle.js',
-    publicPath: '/static/'
+    publicPath: '/'
+  },
+
+  resolve: {
+    extensions: ['.js', '.jsx', '.ts', '.tsx']
   },
 
   plugins: [
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+    }),
+    new ExtractTextPlugin('./styles.css'),
+    new webpack.optimize.UglifyJsPlugin(),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'commons',
+      filename: 'commons.js'
+    })
   ],
 
   module: {
         
     rules: [
         {
-          test: /\.js$/,
+          test: /\.js?$/,
           enforce: 'pre',
           loader: 'eslint-loader',
           include: [
@@ -38,7 +50,7 @@ module.exports = {
           loader: 'react-hot-loader'
         },
         {
-          test: /\.js$/,
+          test: /\.js?$/,
           include: [
             path.resolve(__dirname, 'src')
           ],
@@ -54,9 +66,13 @@ module.exports = {
           ]
           }
         ,{
-            test: /\.css$/,
-            use: [ 'style-loader', 'css-loader' ]
-        }                          
+          test: /\.css$/,
+          use: ExtractTextPlugin.extract({
+            fallback: 'style-loader',
+            use: 'css-loader',
+            publicPath: '/'
+          })
+        }
     ]
   }
-}
+};

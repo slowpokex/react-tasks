@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { PreviousAction, CurrentAction } from '../actions'
+import { PreviousAction, CurrentAction } from '../actions';
+
+import './stylesheets/list.css'
 
 function mapDispatchToProps(dispatch) {
   return {
@@ -38,13 +40,17 @@ class Element extends Component {
   render() {
     const item = this.props.convert;
     return (
-      <div>
+      <div className={this.props.className}>
         <strong> { item.date.toLocaleTimeString() } </strong>
-        <span> { item.first } </span>
-        <strong> { !item.onReverse ? '→' : '←'  } </strong>
-        <span> { item.second } </span>
-        <button onClick={ this.loadItem }> Load </button>
-        <button onClick={ this.deleteItem }> X </button>
+        <div className='result'>
+          <span> { item.first } </span>
+          <strong> { !item.onReverse ? '→' : '←'  } </strong>
+          <span> { item.second } </span>
+        </div>
+        <span className='control-element'>
+          <button className='control-element-style load-button' onClick={ this.loadItem }> Load </button>
+          <button className='control-element-style delete-button' onClick={ this.deleteItem }> X </button>
+        </span>
       </div>
     );
   }

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { CurrentAction } from '../actions'
+import { CurrentAction } from '../actions';
+import './stylesheets/form.css';
 
 export const ConverterType = {
   WEIGHT: 1,
@@ -210,37 +211,43 @@ class ConvertForm extends Component {
       <div>
         <div>
           <input type='text'
+                 className='input'
                  onChange={ this.handleFirstInput }
                  onBlur={ this.refreshValues }
                  value={ current.first }
                  disabled={ current.onReverse }/>
-          <button
+          <button className='revert-button form-button-style'
             onClick={ this.handleReverse }>
             { !current.onReverse ? '→' : '←' }
           </button>
           <input type='text'
+                 className='input'
                  onChange={ this.handleSecondInput }
                  onBlur={ this.refreshValues }
                  value={ current.second }
                  disabled={ !current.onReverse }/>
-          <button onClick={ this.handleConvertClick }>
+          <button className='add-button form-button-style' onClick={ this.handleConvertClick }>
             { 'Add to recent' }
           </button>
         </div>
-        <div>
-          <div>
-            <select ref={(select) => this.mainSelector = select} onChange = { this.handleTypeChange } onBlur={ this.refreshValues }>
-              <option value = { ConverterType.WEIGHT }>Weight</option>
-              <option value = { ConverterType.LENGTH }>Length</option>
-            </select>
-            <div>
+          <ul className='selector-group'>
+            <li>
+              <select
+                className='selector'
+                ref={(select) => this.mainSelector = select}
+                onChange = { this.handleTypeChange }
+                onBlur={ this.refreshValues }>
+                <option value = { ConverterType.WEIGHT }>Weight</option>
+                <option value = { ConverterType.LENGTH }>Length</option>
+              </select>
+            </li>
+            <li>
               { elements(current.type, PositionOfSelectors.FIRST) }
-            </div>
-            <div>
+            </li>
+            <li>
               { elements(current.type, PositionOfSelectors.SECOND) }
-            </div>
-          </div>
-        </div>
+            </li>
+          </ul>
       </div>
       )
   }

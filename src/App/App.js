@@ -3,13 +3,17 @@ import Header from './components/Header'
 import ConvertForm from './components/ConvertForm';
 import HistoryList from './components/HistoryList';
 
+import './App.css';
+
 class App extends Component {
   render() {
     return (
-      <div>
+      <div className='app'>
         <Header />
-        <ConvertForm />
-        <HistoryList />
+        <div className='wrapper'>
+          <ConvertForm />
+          <HistoryList />
+        </div>
       </div>
     );
   }

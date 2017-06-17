@@ -1,0 +1,9 @@
+.app {
+    font-family: sans-serif;
+    font-weight: normal;
+}
+
+.wrapper {
+    position: relative;
+    top: 60px;
+}

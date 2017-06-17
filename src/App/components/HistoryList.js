@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Element from './Element';
 
+import './stylesheets/list.css';
+
 function mapStateToProps(state, dispatch) {
   return {
     previous: state.previous,
@@ -14,6 +16,17 @@ class HistoryList extends Component {
   constructor(props){
     super(props);
     this.clearHistory = this.clearHistory.bind(this);
+    this.hide = this.hide.bind(this);
+    this.state = {
+      isHide: false
+    }
+  }
+
+  hide(){
+    this.setState({
+      ...this.state,
+      isHide: !this.state.isHide
+    });
   }
 
   clearHistory() {
@@ -21,14 +34,32 @@ class HistoryList extends Component {
   }
 
   render() {
-    const clearButton = <button onClick = { this.clearHistory }>Clear history</button>;
-    return (
+    const length = this.props.previous.length;
+    const clearButton = <button
+      className='control-element control-element-style delete-button'
+      onClick = { this.clearHistory }>Clear history</button>;
+    const hiddenElements = (
       <div>
-        <h3>{this.props.previous.length ? 'Recent converts:' : null }</h3>
-        <ul>
-          { this.props.previous.map( (item, i) => <Element li key={i} convert={item}/> ) }
-        </ul>
-        { this.props.previous.length ? clearButton : null }
+        <div >
+          { this.props.previous.map( (item, i) => <Element className='history-element' key={i} convert={item}/> ) }
+        </div>
+        { length ? clearButton : null }
+      </div>);
+
+    const elements = (
+      <div>
+        <div className='history-header'>
+          Recent converts : { length }
+          <button
+            className='hide-button delete-button'
+            onClick={ this.hide }>{ !this.state.isHide ? 'Hide' : 'Show' }</button>
+        </div>
+        { !this.state.isHide ? hiddenElements : null }
+      </div>);
+
+    return (
+      <div className={ length ? 'history-list' : '' }>
+        { length ? elements : null }
       </div>
     );
   }
